@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const fs = require('fs');
 const uuid = require('uuid');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 const dbPath = './db/db.json';
 
 app.use(express.json());
