@@ -50,16 +50,34 @@ app.post('/api/notes', (req, res) => {
 });
 
 app.get('/api/notes/:id', (req, res) => {
-    const noteID = parseInt(req.params.id);
-    const index = db.findIndex(item => item.id === noteID);
-
+    const noteID = req.params.id;
+    const note = db.find(item => item.id === noteID);
+    if (note) {
+        res.json(note);
+    } else {
+        res.status(404).json({ error: 'Note not found' });
+    }
 });
 
+app.delete('/api/notes/:id', (req, res) => {
+    const noteID = req.params.id; 
+    const noteIndex = db.findIndex(item => item.id === noteID);
 
-app.delete('/api/notes/:id',(req,res)=>{
-    const noteID = parseInt(req.params.id);
+    if (noteIndex !== -1) {
+        db.splice(noteIndex, 1);
+        fs.writeFile(dbPath, JSON.stringify(db), (err) => {
+            if (err) {
+                res.status(500).json({ error: 'Failed to update the database' });
+            } else {
+                res.json({ message: 'Note deleted' });
+            }
+        });
+    } else {
+        // If the note is not found, send a 404 error
+        res.status(404).json({ error: 'Note not found' });
+    }
+});
 
-})
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));
